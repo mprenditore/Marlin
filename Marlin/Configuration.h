@@ -73,10 +73,10 @@
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
 // build by the user have been successfully uploaded into firmware.
-#define STRING_CONFIG_H_AUTHOR "(thisiskeithb, Ender-3)" // Who made the changes.
+#define STRING_CONFIG_H_AUTHOR "(electron^-, Ender-3)" // Who made the changes.
 #define SHOW_BOOTSCREEN
-#define STRING_SPLASH_LINE1 SHORT_BUILD_VERSION // will be shown during bootup in line 1
-#define STRING_SPLASH_LINE2 "(by Electron^-)"         // will be shown during bootup in line 2
+// #define STRING_SPLASH_LINE1 SHORT_BUILD_VERSION // will be shown during bootup in line 1
+// #define STRING_SPLASH_LINE2 "(by Electron^-)"         // will be shown during bootup in line 2
 
 /**
  * *** VENDORS PLEASE READ ***
@@ -733,7 +733,7 @@
  */
 //mpre
 // #define DEFAULT_AXIS_STEPS_PER_UNIT   {79.72, 80, 404.04, 96.87 }
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {1269.17, 1267.33, 6375.38, 1549.92 }
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {1269.17, 1267.33, 6375.38, 1679.4019 }
 
 /**
  * Default Max Feed Rate (mm/s)
@@ -742,7 +742,7 @@
  */
 //mpre
 // #define DEFAULT_MAX_FEEDRATE          { 300, 300, 5, 25 }
-#define DEFAULT_MAX_FEEDRATE          { 300, 300, 12, 120 }
+#define DEFAULT_MAX_FEEDRATE          { 300, 300, 12, 70 }
 
 /**
  * Default Max Acceleration (change/s) change = mm/s
@@ -751,8 +751,8 @@
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
  */
 //mpre
-// #define DEFAULT_MAX_ACCELERATION      { 300, 300, 100, 5000 }
-#define DEFAULT_MAX_ACCELERATION      { 1000, 1000, 200, 5000 }
+#define DEFAULT_MAX_ACCELERATION      { 300, 300, 100, 5000 }
+// #define DEFAULT_MAX_ACCELERATION      { 1000, 1000, 200, 5000 }
 
 /**
  * Default Acceleration (change/s) change = mm/s
@@ -763,12 +763,12 @@
  *   M204 T    Travel Acceleration
  */
 //mpre
-// #define DEFAULT_ACCELERATION          300    // X, Y, Z and E acceleration for printing moves
+#define DEFAULT_ACCELERATION          300    // X, Y, Z and E acceleration for printing moves
 // #define DEFAULT_RETRACT_ACCELERATION  500    // E acceleration for retracts
-// #define DEFAULT_TRAVEL_ACCELERATION   300    // X, Y, Z acceleration for travel (non printing) moves
-#define DEFAULT_ACCELERATION          1250    // X, Y, Z and E acceleration for printing moves
+#define DEFAULT_TRAVEL_ACCELERATION   300    // X, Y, Z acceleration for travel (non printing) moves
+// #define DEFAULT_ACCELERATION          1250    // X, Y, Z and E acceleration for printing moves
 #define DEFAULT_RETRACT_ACCELERATION  1250    // E acceleration for retracts
-#define DEFAULT_TRAVEL_ACCELERATION   1250    // X, Y, Z acceleration for travel (non printing) moves
+// #define DEFAULT_TRAVEL_ACCELERATION   1250    // X, Y, Z acceleration for travel (non printing) moves
 
 /**
  * Junction Deviation
@@ -1040,14 +1040,14 @@
 // @section machine
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
-#define INVERT_X_DIR false
+#define INVERT_X_DIR true
 #define INVERT_Y_DIR true
 #define INVERT_Z_DIR false
 
 // @section extruder
 
 // For direct drive extruder v9 set to true, for geared extruder set to false.
-#define INVERT_E0_DIR false
+#define INVERT_E0_DIR true
 #define INVERT_E1_DIR false
 #define INVERT_E2_DIR false
 #define INVERT_E3_DIR false
