@@ -33,7 +33,7 @@ GCodeQueue queue;
 #include "../sd/cardreader.h"
 #include "../module/planner.h"
 #include "../module/temperature.h"
-#include "../Marlin.h"
+#include "../MarlinCore.h"
 
 #if ENABLED(PRINTER_EVENT_LEDS)
   #include "../feature/leds/printer_event_leds.h"
@@ -43,6 +43,9 @@ GCodeQueue queue;
   #include "../feature/binary_protocol.h"
 #endif
 
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #include "../feature/power_loss_recovery.h"
+#endif
 
 /**
  * GCode line number handling. Hosts may opt to include line numbers when
@@ -64,7 +67,7 @@ uint8_t GCodeQueue::length = 0,  // Count of commands in the queue
         GCodeQueue::index_r = 0, // Ring buffer read position
         GCodeQueue::index_w = 0; // Ring buffer write position
 
-char GCodeQueue::buffer[BUFSIZE][MAX_CMD_SIZE];
+char GCodeQueue::command_buffer[BUFSIZE][MAX_CMD_SIZE];
 
 /*
  * The port that the command was received on
@@ -120,6 +123,9 @@ void GCodeQueue::_commit_command(bool say_ok
   #if NUM_SERIAL > 1
     port[index_w] = p;
   #endif
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    recovery.commit_sdpos(index_w);
+  #endif
   if (++index_w >= BUFSIZE) index_w = 0;
   length++;
 }
@@ -135,7 +141,7 @@ bool GCodeQueue::_enqueue(const char* cmd, bool say_ok/*=false*/
   #endif
 ) {
   if (*cmd == ';' || length >= BUFSIZE) return false;
-  strcpy(buffer[index_w], cmd);
+  strcpy(command_buffer[index_w], cmd);
   _commit_command(say_ok
     #if NUM_SERIAL > 1
       , pn
@@ -185,7 +191,6 @@ bool GCodeQueue::process_injected_command() {
   // Execute command if non-blank
   if (i) {
     parser.parse(cmd);
-    PORT_REDIRECT(SERIAL_PORT);
     gcode.process_parsed_command();
   }
   return true;
@@ -237,12 +242,12 @@ void GCodeQueue::ok_to_send() {
   #if NUM_SERIAL > 1
     const int16_t pn = port[index_r];
     if (pn < 0) return;
-    PORT_REDIRECT(pn);
+    PORT_REDIRECT(pn);                    // Reply to the serial port that sent the command
   #endif
   if (!send_ok[index_r]) return;
   SERIAL_ECHOPGM(MSG_OK);
   #if ENABLED(ADVANCED_OK)
-    char* p = buffer[index_r];
+    char* p = command_buffer[index_r];
     if (*p == 'N') {
       SERIAL_ECHO(' ');
       SERIAL_ECHO(*p++);
@@ -261,9 +266,9 @@ void GCodeQueue::ok_to_send() {
  */
 void GCodeQueue::flush_and_request_resend() {
   #if NUM_SERIAL > 1
-    const int16_t p = port[index_r];
-    if (p < 0) return;
-    PORT_REDIRECT(p);
+    const int16_t pn = port[index_r];
+    if (pn < 0) return;
+    PORT_REDIRECT(pn);                    // Reply to the serial port that sent the command
   #endif
   SERIAL_FLUSH();
   SERIAL_ECHOPGM(MSG_RESEND);
@@ -290,14 +295,14 @@ inline int read_serial(const uint8_t index) {
   }
 }
 
-void GCodeQueue::gcode_line_error(PGM_P const err, const int8_t port) {
-  PORT_REDIRECT(port);
+void GCodeQueue::gcode_line_error(PGM_P const err, const int8_t pn) {
+  PORT_REDIRECT(pn);                      // Reply to the serial port that sent the command
   SERIAL_ERROR_START();
   serialprintPGM(err);
   SERIAL_ECHOLN(last_N);
-  while (read_serial(port) != -1);           // clear out the RX buffer
+  while (read_serial(pn) != -1);          // Clear out the RX buffer
   flush_and_request_resend();
-  serial_count[port] = 0;
+  serial_count[pn] = 0;
 }
 
 FORCE_INLINE bool is_M29(const char * const cmd) {  // matches "M29" & "M29 ", but not "M290", etc
@@ -434,7 +439,7 @@ void GCodeQueue::get_serial_commands() {
               wait_for_user = false;
             #endif
           }
-          if (strcmp(command, "M112") == 0) kill();
+          if (strcmp(command, "M112") == 0) kill(M112_KILL_STR, nullptr, true);
           if (strcmp(command, "M410") == 0) quickstop_stepper();
         #endif
 
@@ -553,10 +558,14 @@ void GCodeQueue::get_serial_commands() {
         // Skip empty lines and comments
         if (!sd_count) { thermalManager.manage_heater(); continue; }
 
-        buffer[index_w][sd_count] = '\0'; // terminate string
+        command_buffer[index_w][sd_count] = '\0'; // terminate string
         sd_count = 0; // clear sd line buffer
 
         _commit_command(false);
+
+        #if ENABLED(POWER_LOSS_RECOVERY)
+          recovery.cmd_sdpos = card.getIndex(); // Prime for the next _commit_command
+        #endif
       }
       else if (sd_count >= MAX_CMD_SIZE - 1) {
         /**
@@ -574,7 +583,7 @@ void GCodeQueue::get_serial_commands() {
           #if ENABLED(PAREN_COMMENTS)
             && ! sd_comment_paren_mode
           #endif
-        ) buffer[index_w][sd_count++] = sd_char;
+        ) command_buffer[index_w][sd_count++] = sd_char;
       }
     }
   }
@@ -610,7 +619,7 @@ void GCodeQueue::advance() {
   #if ENABLED(SDSUPPORT)
 
     if (card.flag.saving) {
-      char* command = buffer[index_r];
+      char* command = command_buffer[index_r];
       if (is_M29(command)) {
         // M29 closes the file
         card.closefile();
