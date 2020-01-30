@@ -31,14 +31,14 @@
  * http://marlinfw.org/tools/u8glib/converter.html
  */
 
-// #define CUSTOM_BOOTSCREEN_INVERTED
+#define CUSTOM_BOOTSCREEN_INVERTED
 /**
  * Made with Marlin Bitmap Converter
  * http://marlinfw.org/tools/u8glib/converter.html
  *
  * This bitmap from the file 'ender3-2_small2.jpg'
  */
-#define CUSTOM_BOOTSCREEN_TIMEOUT 1000
+#define CUSTOM_BOOTSCREEN_TIMEOUT 3000
 #define CUSTOM_BOOTSCREEN_BMPWIDTH  81
 // #define CUSTOM_BOOTSCREEN_BMPHEIGHT 64
 const unsigned char custom_start_bmp[] PROGMEM = {

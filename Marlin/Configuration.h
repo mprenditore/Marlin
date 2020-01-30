@@ -466,7 +466,7 @@
 //mpre
   #define PID_EDIT_MENU           // Add PID editing to the "Advanced Settings" menu. (~700 bytes of PROGMEM)
   #define PID_AUTOTUNE_MENU       // Add PID auto-tuning to the "Advanced Settings" menu. (~250 bytes of PROGMEM)
-  #define PID_DEBUG             // Sends debug data to the serial port.
+  // #define PID_DEBUG             // Sends debug data to the serial port.
   //#define PID_OPENLOOP 1        // Puts PID in open loop. M104/M140 sets the output power from 0 to PID_MAX
   //#define SLOW_PWM_HEATERS      // PWM with very low frequency (roughly 0.125Hz=8s) and minimum state time of approximately 1s useful for heaters driven by a relay
   //#define PID_PARAMS_PER_HOTEND // Uses separate PID parameters for each extruder (useful for mismatched extruders)
@@ -483,9 +483,15 @@
 
   // smaller_heatblock 220C 11.9ohm 24V
 //mpre
-  #define DEFAULT_Kp 10.86
-  #define DEFAULT_Ki 0.79
-  #define DEFAULT_Kd 37.38
+  // #define DEFAULT_Kp 10.86
+  // #define DEFAULT_Ki 0.79
+  // #define DEFAULT_Kd 37.38
+
+  // heatblock 210C 40W 24V
+//mpre
+  #define DEFAULT_Kp 27.90
+  #define DEFAULT_Ki 2.77
+  #define DEFAULT_Kd 70.38
 
   // Ultimaker
   //#define DEFAULT_Kp 22.2
@@ -733,7 +739,7 @@
  */
 //mpre
 // #define DEFAULT_AXIS_STEPS_PER_UNIT   {79.72, 80, 404.04, 96.87 }
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {1269.17, 1267.33, 6375.38, 1679.4019 }
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {1269.17, 1267.33, 6375.38, 1619.71 }
 
 /**
  * Default Max Feed Rate (mm/s)
@@ -742,17 +748,17 @@
  */
 //mpre
 // #define DEFAULT_MAX_FEEDRATE          { 300, 300, 5, 25 }
-#define DEFAULT_MAX_FEEDRATE          { 300, 300, 12, 70 }
+#define DEFAULT_MAX_FEEDRATE          { 300, 300, 50, 120 }
 
-/**
+/**M303 E0 C8 S240
  * Default Max Acceleration (change/s) change = mm/s
  * (Maximum start speed for accelerated moves)
  * Override with M201
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
  */
 //mpre
-#define DEFAULT_MAX_ACCELERATION      { 300, 300, 100, 5000 }
-// #define DEFAULT_MAX_ACCELERATION      { 1000, 1000, 200, 5000 }
+// #define DEFAULT_MAX_ACCELERATION      { 300, 300, 100, 5000 }
+#define DEFAULT_MAX_ACCELERATION      { 1000, 1000, 200, 5000 }
 
 /**
  * Default Acceleration (change/s) change = mm/s
@@ -763,12 +769,12 @@
  *   M204 T    Travel Acceleration
  */
 //mpre
-#define DEFAULT_ACCELERATION          300    // X, Y, Z and E acceleration for printing moves
+// #define DEFAULT_ACCELERATION          300    // X, Y, Z and E acceleration for printing moves
 // #define DEFAULT_RETRACT_ACCELERATION  500    // E acceleration for retracts
-#define DEFAULT_TRAVEL_ACCELERATION   300    // X, Y, Z acceleration for travel (non printing) moves
-// #define DEFAULT_ACCELERATION          1250    // X, Y, Z and E acceleration for printing moves
+// #define DEFAULT_TRAVEL_ACCELERATION   300    // X, Y, Z acceleration for travel (non printing) moves
+#define DEFAULT_ACCELERATION          1250    // X, Y, Z and E acceleration for printing moves
 #define DEFAULT_RETRACT_ACCELERATION  1250    // E acceleration for retracts
-// #define DEFAULT_TRAVEL_ACCELERATION   1250    // X, Y, Z acceleration for travel (non printing) moves
+#define DEFAULT_TRAVEL_ACCELERATION   1250    // X, Y, Z acceleration for travel (non printing) moves
 
 /**
  * Junction Deviation
@@ -1072,14 +1078,14 @@
 // @section machine
 
 // The size of the print bed
-#define X_BED_SIZE 235
+#define X_BED_SIZE 230
 #define Y_BED_SIZE 235
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
 #define X_MIN_POS 0
-#define Y_MIN_POS 0
+#define Y_MIN_POS -12
 #define Z_MIN_POS 0
-#define X_MAX_POS X_BED_SIZE + 15
+#define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE
 #define Z_MAX_POS 230
 
@@ -1269,7 +1275,7 @@
   //#define MESH_EDIT_GFX_OVERLAY   // Display a graphics overlay while editing the mesh
 
   #define MESH_INSET 1              // Set Mesh bounds as an inset region of the bed
-  #define GRID_MAX_POINTS_X 10      // Don't use more than 15 points per axis, implementation limited.
+  #define GRID_MAX_POINTS_X 10      // Don't use more than 10 points per axis, implementation limited.
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   #define UBL_MESH_EDIT_MOVES_Z     // Sophisticated users prefer no movement of nozzle
