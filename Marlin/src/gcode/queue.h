@@ -51,7 +51,7 @@ public:
   static uint8_t length,  // Count of commands in the queue
                  index_r; // Ring buffer read position
 
-  static char buffer[BUFSIZE][MAX_CMD_SIZE];
+  static char command_buffer[BUFSIZE][MAX_CMD_SIZE];
 
   /*
    * The port that the command was received on
@@ -150,7 +150,7 @@ private:
    */
   static bool enqueue_one(const char* cmd);
 
-  static void gcode_line_error(PGM_P const err, const int8_t port);
+  static void gcode_line_error(PGM_P const err, const int8_t pn);
 
 };
 
